@@ -9,18 +9,25 @@ import rootReducer from './reducers';
 //currying function
 //function logger(obj,next,action)
 //logger(obj)(next)(action)
-const logger= function({ dispatch,getstate}){
-  return function(next){
-    return function(action){
-      //middleware code
-      console.log('ACTION_TYPE=',action.type);
-      next(action);
-    }
 
-  }
+// const logger= function({ dispatch,getstate}){
+//   return function(next){
+//     return function(action){
+//       //middleware code
+//       console.log('ACTION_TYPE=',action.type);
+//       next(action);
+//     }
+
+//   }
+// }
+
+
+const logger =({dispatch,getState}) => (next) => (action) =>{
+
+  //logger code
+  console.log('ACTION_TYPE=',action.type);
+  next(action);
 }
-
-
 
 const store = createStore(rootReducer,applyMiddleware(logger));
 console.log('store',store);
