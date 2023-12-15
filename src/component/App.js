@@ -1,49 +1,72 @@
 import React from "react";
-import {data} from '../data';
+import { connect } from 'react-redux';
+// import {data} from '../data';
 import Navbar from './Navbar';
 import MovieCard from "./MovieCard";
+import { data as moviesList } from '../data';
 import { addMovies, setShowFavourites } from "../actions";
+// import { StoreContext } from "..index";
 
+// class App extends React.Component {
+//   componentDidMount (){
+//     const {store} = this.props;
 
-class App extends React.Component {
-  componentDidMount (){
-    const {store} = this.props;
-    store.subscribe(()=>{
-      console.log('UPDATED');
-      this.forceUpdate();
-    });
-    //make api call
-    //dispatch action
-    store.dispatch(addMovies(data));
+//      //subscribe function is called automatically after dispatch function is called
+//     store.subscribe(()=>{
+//       console.log('UPDATED');
+//       this.forceUpdate();
+//     });
+//     //make api call
+//     //dispatch action
+//     store.dispatch(addMovies(moviesList));
 
-    console.log('STATE',this.props.store.getState());
+//     console.log('STATE',this.props.store.getState());
   
+//   }
+//   isMovieFavourite = (movie) => {
+// const {movies} = this.props.store.getState();
+
+// const index = movies.favourites.indexOf(movie);
+
+//      if(index !== -1){
+//      //found the movie
+//       return true;
+//    }
+//    return false;
+// }
+class App extends React.Component {
+  componentDidMount() {
+    this.props.dispatch(addMovies(moviesList));
   }
-  isMovieFavourite = (movie) => {
-const {movies} = this.props.store.getState();
 
-const index = movies.favourites.indexOf(movie);
+  isMovieInFavourite = (movie) => {
+    const { movies } = this.props;
 
-     if(index !== -1){
-     //found the movie
+    const index = movies.favourites.indexOf(movie);
+    if (index !== -1) {
       return true;
-   }
-   return false;
-}
+    }
+
+    return false;
+  };
+
   
   onChangeTab = (val)=>{
-    this.props.store.dispatch(setShowFavourites(val))
+    this.props.dispatch(setShowFavourites(val))
   }
   render(){
-    const {movies }=this.props.store.getState();//{movies:{},Search:{}} 
-    const{list,favourites,showFavourites} = movies;
+    // const {movies ,search}=this.props.store.getState();//{movies:{},Search:{}} 
+    const { movies, search } = this.props;
+    console.log('movies', movies);
+    const{list,favourites=[],showFavourites=[]} = movies;
     // const {list,favourites,showFavourites} = this.props.store.getState();  //{list:[],favourites:[]}
-    console.log('RENDER',this.props.store.getState());
-    
+    // console.log('RENDER',this.props.store.getState());
     const displayMovies = showFavourites ? favourites :list;
+    
     return (
       <div className="App">
-        <Navbar/>
+         <Navbar search={search} />
+        {/* <Navbar dispatch={this.props.store.dispatch} search={search}/> */}
         <div className="main">
           <div className="tabs">
             <div className={`tab ${showFavourites ? '' :'active-tab'}`} onClick={() => this.onChangeTab(false)}>Movies</div>
@@ -51,12 +74,14 @@ const index = movies.favourites.indexOf(movie);
           </div>
   
           <div className="List">
-            {displayMovies.map((movie,index) => (
+            {displayMovies.map((movie) => (
               <MovieCard 
                 movie={movie} 
-                key={`movies-${index}`}
-                dispatch={this.props.store.dispatch}
-                isFavourite={this.isMovieFavourite(movie)}
+                key={movie.imdbID}
+                // key={`movies-${index}`}
+                // dispatch={this.props.store.dispatch}
+                dispatch={this.props.dispatch}
+                isFavourite={this.isMovieInFavourite(movie)}
              />
             ))}
   
@@ -67,7 +92,28 @@ const index = movies.favourites.indexOf(movie);
     );
   }
 } 
-export default App;
+
+// class AppWrapper extends React.Component {
+//   render() {
+//     return (
+//       <StoreContext.Consumer>
+//         {(store) => <App store={store} />}
+//       </StoreContext.Consumer>
+//     );
+//   }
+// }
+// export default AppWrapper;
+
+function callback(state){
+  return{
+    movies:state.movies,
+    search:state.movies
+  }
+};
+const connectedComponent =  connect (callback)(App);
+
+ export default connectedComponent;
+//  export default App;
 
 
 // function App(props) {
